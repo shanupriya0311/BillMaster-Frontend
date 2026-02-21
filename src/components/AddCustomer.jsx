@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./AddCustomer.css";
-
+import {toast} from "react-toastify"
 const AddCustomer = ({ onClose, onAdd }) => {
 
   const [formData, setFormData] = useState({
@@ -34,6 +34,7 @@ const AddCustomer = ({ onClose, onAdd }) => {
       );
 
       console.log("Customer added:", response.data);
+      toast.success("Customer Added Successfully");
 
       onAdd(response.data);
 
@@ -41,7 +42,8 @@ const AddCustomer = ({ onClose, onAdd }) => {
 
     } catch (error) {
       console.error("Customer not added:", error);
-      alert("Failed to add customer. Check console.");
+      //alert("Failed to add customer. Check console.");
+      toast.success("Failed to add customer");
     }
   };
 

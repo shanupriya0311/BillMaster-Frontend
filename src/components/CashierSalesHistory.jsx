@@ -96,34 +96,6 @@ const filteredSales = salesData.filter((tx) => {
             />
           </div>
 
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#f8fafc", padding: "4px 8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <span style={{ fontSize: "12px", color: "#64748b" }}>From:</span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                style={{ border: "none", background: "transparent", fontSize: "13px", outline: "none", color: "#334155" }}
-              />
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#f8fafc", padding: "4px 8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <span style={{ fontSize: "12px", color: "#64748b" }}>To:</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                style={{ border: "none", background: "transparent", fontSize: "13px", outline: "none", color: "#334155" }}
-              />
-            </div>
-            {(startDate || endDate) && (
-              <button
-                onClick={() => { setStartDate(""); setEndDate(""); }}
-                style={{ border: "none", background: "transparent", color: "#ef4444", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-              >
-                Clear
-              </button>
-            )}
-          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

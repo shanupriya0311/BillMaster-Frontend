@@ -4,7 +4,7 @@ import AddCustomer from "./AddCustomer";
 import deleteIcon from "../assets/delete.png";
 import axios from "axios";
 import {toast} from "react-toastify";
-import "./toast.css"
+import "./toast.css";
 /* =======================
    Customer Card Component
    ======================= */
@@ -40,50 +40,52 @@ const CustomerCard = ({ customer, onDelete }) => {
    Main Component
    ======================= */
 
-const ManagerCustomerManagement = () => {
+const CashierCustomer = () => {
 
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedPhone, setSelectedPhone] = useState(null);
-  
-  const confirmDelete = (phone) => {
-    setSelectedPhone(phone);
-  
-    toast(
-      ({ closeToast }) => (
-        <div className="toast-box">
-          <p>Are you sure you want to delete?</p>
-  
-          <div className="toast-actions">
-            <button
-              className="yes-btn"
-              onClick={() => {
-                handleDelete(phone);
-                closeToast();
-              }}
-            >
-              Yes
-            </button>
-  
-            <button className="no-btn" onClick={closeToast}>
-              No
-            </button>
-          </div>
+const [selectedPhone, setSelectedPhone] = useState(null);
+
+const confirmDelete = (phone) => {
+  setSelectedPhone(phone);
+
+  toast(
+    ({ closeToast }) => (
+      <div className="toast-box">
+        <p>Are you sure you want to delete?</p>
+
+        <div className="toast-actions">
+          <button
+            className="yes-btn"
+            onClick={() => {
+              handleDelete(phone);
+              closeToast();
+            }}
+          >
+            Yes
+          </button>
+
+          <button className="no-btn" onClick={closeToast}>
+            No
+          </button>
         </div>
-      ),
-      {
-        autoClose: false,
-        closeOnClick: false,
-        hideProgressBar: true,
-      }
-    );
-  };
+      </div>
+    ),
+    {
+      autoClose: false,
+      closeOnClick: false,
+      hideProgressBar: true,
+    }
+  );
+};
   const handleDelete=async(phone)=>{
       try{
         await axios.delete(`http://localhost:8085/api/customers/phone/${phone}`);
          setCustomers(prev => prev.filter(c => c.phone !== phone));
         console.log("customer deleted successfully");
+
+        toast.error("Customer deleted Successfully");
       }
       catch(error){
         console.log("customer not found");
@@ -169,4 +171,4 @@ const ManagerCustomerManagement = () => {
   );
 };
 
-export default ManagerCustomerManagement;
+export default CashierCustomer;

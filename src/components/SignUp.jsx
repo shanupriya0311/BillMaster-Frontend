@@ -28,7 +28,7 @@ export default function SignUp({ onNavigate }) {
 
   try {
     const response = await axios.post(
-      "http://localhost:8083/api/auth/register",
+      " http://localhost:8083/api/auth/register",
       formdata
     );
 

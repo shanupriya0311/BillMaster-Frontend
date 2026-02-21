@@ -29,6 +29,10 @@ const CashierSidebar = ({ activePage, onNavigate, currentUser, onLogout }) => {
                 <a onClick={() => onNavigate("CashierSalesHistory")} className={`nav-item ${activePage === "CashierSalesHistory" ? "active" : ""}`}>
                     <i className="fas fa-file-invoice-dollar"></i> Sales History
                 </a>
+                  <a onClick={() => onNavigate("CashierCustomer")} className={`nav-item ${activePage === "CashierCustomer" ? "active" : ""}`}>
+                    <i className="fas fa-file-invoice-dollar"></i> Customers
+                </a>
+
             </nav>
 
             <div className="sidebar-footer">
