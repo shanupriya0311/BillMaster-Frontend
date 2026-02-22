@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Login from "./components/Login";
 import ProductManagement from "./components/ProductManagement";
-import Products from "./Products";
+import "react-toastify/dist/ReactToastify.css";
 import Settings from "./components/Settings";
 import Customers from "./components/Customers";
 import AddCustomer from "./components/AddCustomer";
@@ -25,13 +24,14 @@ import ManagerCustomers from "./components/ManagerCustomers";
 import CashierDashboard from "./components/CashierDashboard";
 import CashierPOS from "./components/CashierPOS";
 import CashierSalesHistory from "./components/CashierSalesHistory";
+import CashierCustomer from "./components/CashierCustomer";
 
 import ManagerDashboard from "./components/ManagerDashboard";
 import ManagerPOS from "./components/ManagerPOS";
 import ManagerProductManagement from "./components/ManagerProductManagement";
 import ManagerSalesHistory from "./components/ManagerSalesHistory";
 import ManagerReports from "./components/ManagerReports";
-
+import { ToastContainer } from "react-toastify";
 function App() {
   const [currentPage, setCurrentPage] = useState("Welcome");
   const [currentUser, setCurrentUser] = useState(null);
@@ -56,7 +56,7 @@ function App() {
       case "Home":
         return <Home onNavigate={setCurrentPage} />;
       case "Dashboard":
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentPage} />;
       case "POS":
         return <POS />;
       case "Products":
@@ -79,6 +79,8 @@ function App() {
         return <CashierPOS onNavigate={setCurrentPage} />;
       case "CashierSalesHistory":
         return <CashierSalesHistory onNavigate={setCurrentPage} />;
+      case "CashierCustomer":
+        return <CashierCustomer />;
 
       // Manager Routes
       case "ManagerDashboard":
@@ -100,11 +102,16 @@ function App() {
     }
   };
 
-  const isCashierPage = ["CashierDashboard", "CashierPOS", "CashierSalesHistory"].includes(currentPage);
+  const isCashierPage = ["CashierDashboard", "CashierPOS", "CashierSalesHistory", "CashierCustomer"].includes(currentPage);
   const isManagerPage = ["ManagerDashboard", "ManagerPOS", "ManagerProductManagement", "ManagerSalesHistory", "ManagerReports", "ManagerCustomers"].includes(currentPage);
 
   return (
     <>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        theme="colored"
+      />
       {currentPage === "Welcome" ? (
         <Welcome onNavigate={setCurrentPage} />
       ) : currentPage === "Home" ? (

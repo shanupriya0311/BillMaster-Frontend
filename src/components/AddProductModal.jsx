@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import "./AddProductModal.css";
+import { toast } from "react-toastify";
 
-function AddProductModal({ onClose, onAdd }) {
-
+function AddProductModal({ onClose, onAdd, initialData }) {
   const [form, setForm] = useState({
     name: "",
     sku: "",
@@ -15,44 +14,44 @@ function AddProductModal({ onClose, onAdd }) {
     lowStock: 10,
   });
 
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name || "",
+        sku: initialData.sku || "",
+        barcode: initialData.barcode || "",
+        category: initialData.category || "",
+        price: initialData.price || "",
+        tax: initialData.tax ?? 18,
+        stock: initialData.stock ?? 0,
+        lowStock: initialData.lowStock ?? 10,
+      });
+    }
+  }, [initialData]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const adddata = async (form) => {
-    try {
-      await axios.post("http://localhost:8085/api/products", {
-        ...form,
-        price: Number(form.price),
-        tax: Number(form.tax),
-        stock: Number(form.stock),
-        lowStock: Number(form.lowStock),
-      });
-
-      console.log("product added successfully");
-    } catch (error) {
-      console.log("product is not added successfully", error);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    onAdd(form);
-    await adddata(form);
+    await onAdd(form);
     onClose();
   };
+
+  const isEditing = !!initialData;
 
   return (
     <div className="ap-overlay">
       <div className="ap-modal">
 
         <div className="ap-header">
-          <h2>Add New Product</h2>
+          <h2>{isEditing ? "Edit Product" : "Add New Product"}</h2>
           <button className="ap-close" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit}>
-        
+
           <div className="ap-row">
             <div className="ap-group">
               <label>Product Name</label>
@@ -103,6 +102,7 @@ function AddProductModal({ onClose, onAdd }) {
               </select>
             </div>
           </div>
+
           <div className="ap-row">
             <div className="ap-group">
               <label>Price (₹)</label>
@@ -136,7 +136,6 @@ function AddProductModal({ onClose, onAdd }) {
             </div>
           </div>
 
-        
           <div className="ap-group ap-full">
             <label>Low Stock Threshold</label>
             <input
@@ -146,12 +145,13 @@ function AddProductModal({ onClose, onAdd }) {
               onChange={handleChange}
             />
           </div>
+
           <div className="ap-footer">
             <button type="button" className="ap-cancel" onClick={onClose}>
               Cancel
             </button>
             <button type="submit" className="ap-submit">
-              Add Product
+              {isEditing ? "Update Product" : "Add Product"}
             </button>
           </div>
         </form>

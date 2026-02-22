@@ -47,9 +47,7 @@ export default function Welcome({ onNavigate }) {
 
                     <div className="instruction-box">
                         <p>
-                            <b>New to the platform?</b> If you are the first person enrolling,
-                            please choose <b>Sign Up</b>. Otherwise, select <b>Sign In</b> to
-                            access your account.
+                            <b>Sign in to access your dashboard and manage your retail operations seamlessly</b>
                         </p>
                     </div>
 
@@ -59,18 +57,6 @@ export default function Welcome({ onNavigate }) {
                             className="btn btn-signin"
                         >
                             Sign In
-                        </button>
-
-
-                        <div className="divider">
-                            <span>OR</span>
-                        </div>
-
-                        <button
-                            onClick={() => onNavigate("SignUp")}
-                            className="btn btn-signup"
-                        >
-                            Sign Up
                         </button>
                     </div>
 

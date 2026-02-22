@@ -29,8 +29,8 @@ const CashierSidebar = ({ activePage, onNavigate, currentUser, onLogout }) => {
                 <a onClick={() => onNavigate("CashierSalesHistory")} className={`nav-item ${activePage === "CashierSalesHistory" ? "active" : ""}`}>
                     <i className="fas fa-file-invoice-dollar"></i> Sales History
                 </a>
-                  <a onClick={() => onNavigate("CashierCustomer")} className={`nav-item ${activePage === "CashierCustomer" ? "active" : ""}`}>
-                    <i className="fas fa-file-invoice-dollar"></i> Customers
+                <a onClick={() => onNavigate("CashierCustomer")} className={`nav-item ${activePage === "CashierCustomer" ? "active" : ""}`}>
+                    <i className="fas fa-users"></i> Customers
                 </a>
 
             </nav>
@@ -39,8 +39,8 @@ const CashierSidebar = ({ activePage, onNavigate, currentUser, onLogout }) => {
                 <div className="user-profile">
                     <div className="avatar">{userInitial}</div>
                     <div>
-                      
-                        <div className="user-role" style={{paddingLeft: "0px"}}>{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</div>
+
+                        <div className="user-role" style={{ paddingLeft: "0px" }}>{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</div>
                     </div>
                 </div>
                 <button className="logout-btn" onClick={onLogout}>

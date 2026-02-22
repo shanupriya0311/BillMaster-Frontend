@@ -117,7 +117,7 @@
 }
 
 .glass-card {
-    background: var(--glass);
+    background: #d3dfe2fe;
     backdrop-filter: blur(20px);
     padding: 50px 40px;
     border-radius: 32px;
@@ -134,7 +134,7 @@
 }
 
 .instruction-box {
-    background: rgba(45, 212, 191, 0.1);
+    background: rgba(25, 174, 157, 0.3);
     border-left: 4px solid var(--teal);
     padding: 16px;
     border-radius: 8px;

@@ -232,3 +232,59 @@
 .price {
   font-weight: bold;
 }
+
+/* ── Pagination ── */
+.sh-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding-bottom: 12px;
+}
+
+.sh-page-numbers {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sh-page-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sh-page-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.sh-page-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.sh-page-active {
+  background: #22a699 !important;
+  color: #ffffff !important;
+  border-color: #22a699 !important;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(34, 166, 153, 0.28);
+}
+
+.sh-nav-btn {
+  padding: 0 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}

@@ -42,8 +42,7 @@ const AddCustomer = ({ onClose, onAdd }) => {
 
     } catch (error) {
       console.error("Customer not added:", error);
-      //alert("Failed to add customer. Check console.");
-      toast.success("Failed to add customer");
+      
     }
   };
 

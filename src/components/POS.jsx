@@ -240,7 +240,6 @@ export default function POS() {
                                   "📦"}
                   </div>
                   <div className="name">{p.name}</div>
-                  <div className="cat">{p.category}</div>
                   <div className="price">₹{p.price}</div>
                   <small>SKU: {p.sku}</small>
                 </div>

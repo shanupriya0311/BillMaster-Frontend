@@ -260,7 +260,7 @@ const Reports = () => {
             const response = await axios.get(
                 "http://localhost:8090/api/reports/manager-summary/pdf",
                 {
-                    responseType: "blob",   // ⭐ VERY IMPORTANT
+                    responseType: "blob",   
                 }
             );
 

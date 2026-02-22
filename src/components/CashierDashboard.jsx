@@ -7,8 +7,8 @@ import {
 import Chart from "chart.js/auto";
 import "./Dashboard.css";
 import axios from "axios";
-
-export default function CashierDashboard() {
+import { Navigate } from "react-router-dom";
+export default function CashierDashboard({onNavigate}) {
     const salesTrendRef = useRef(null);
     const categoryRef = useRef(null);
     const chartInstances = useRef({});
@@ -19,6 +19,7 @@ export default function CashierDashboard() {
         tax: 0,
         lowStock: 0
     });
+    const[lowstock,setlowstock]=useState([]);
     const [recentTransactions, setRecentTransactions] = useState([]);
     const getCategory = (name) => {
   name = name.toLowerCase();
@@ -78,7 +79,12 @@ const convertTransactions = (transactions) => {
       const changedata = convertTransactions(response.data);
 
       setSalesData(changedata);
-
+         const responses=await axios.get("http://localhost:8086/api/products/lowstock");
+    setlowstock(responses.data);
+    setStats(prev => ({
+  ...prev,
+  lowStock: responses.data.length
+}));
       // SORT
       const sortedData = [...changedata].sort(
         (a, b) => new Date(b.date) - new Date(a.date)
@@ -179,9 +185,7 @@ const convertTransactions = (transactions) => {
       console.log(err);
     }
   };
-
   fetchdata();
-
   return () => {
     if (chartInstances.current.trend) chartInstances.current.trend.destroy();
     if (chartInstances.current.category) chartInstances.current.category.destroy();
@@ -190,36 +194,48 @@ const convertTransactions = (transactions) => {
 
     return (
         <div className="dashboard">
+
+            {/* Sidebar REMOVED */}
+
+            {/* Main */}
             <main className="content">
                 <header className="header">
                     <h2 style={{ fontSize: '18px', margin: 0 }}>Dashboard</h2>
                 </header>
+
+                {/* Cards */}
                 <section className="stats">
                     <Stat title="Today's Sales" value={`₹${stats.todaySales}`} icon={<TrendingDown />} />
                     <Stat title="Transactions" value={stats.transactions} icon={<Receipt />} />
                     <Stat title="Tax Collected" value={`₹${stats.tax}`} icon={<TrendingUp />} />
                     <Stat title="Low Stock Items" value={stats.lowStock} icon={<CheckCircle />} />
                 </section>
-                <section className="charts">
-                    <div className="card large">
-                        <h3>Weekly Sales Trend</h3>
-                        <div style={{ height: '180px', width: '100%' }}>
-                            <canvas ref={salesTrendRef}></canvas>
-                        </div>
-                    </div>
 
-                    <div className="card small-chart">
-                        <h3>Sales by Category</h3>
-                        <div style={{ height: '160px', width: '100%', position: 'relative' }}>
-                            <canvas ref={categoryRef}></canvas>
-                        </div>
-                    </div>
-                </section>
+
+                {/* Charts */}
+               {/* Charts Section */}
+<section className="charts">
+    <div className="card large">
+        <h3>Weekly Sales Trend</h3>
+        <div className="chart-container">
+            <canvas ref={salesTrendRef}></canvas>
+        </div>
+    </div>
+
+    <div className="card small-chart">
+        <h3>Sales by Category</h3>
+        <div className="chart-container">
+            <canvas ref={categoryRef}></canvas>
+        </div>
+    </div>
+</section>
+
+                {/* Bottom Section */}
                 <section className="bottom-section">
                     <div className="card">
                         <div className="section-header">
                             <h3>Recent Transactions</h3>
-                            <a href="#" style={{ fontSize: '12px', color: '#0d9488', textDecoration: 'none' }}>View all →</a>
+                            <a onClick={()=>onNavigate("Sales History")} style={{ fontSize: '12px', color: '#0d9488', textDecoration: 'none' ,cursor: 'pointer'}}>View all →</a>
                         </div>
                         <div className="transactions-list">
                             {recentTransactions.map((tx) => (
@@ -228,7 +244,7 @@ const convertTransactions = (transactions) => {
                         </div>
                     </div>
 
-                    <div className="card">
+                   {/* <div className="card">
                         <div className="section-header">
                             <h3>Low Stock Alerts</h3>
                             <span style={{ fontSize: '12px', color: '#64748b' }}>0 items</span>
@@ -237,7 +253,39 @@ const convertTransactions = (transactions) => {
                             <PackageCheck size={32} color="#0d9488" />
                             <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#94a3b8' }}>All items are in stock</p>
                         </div>
-                    </div>
+                    </div>*/}
+                    <div className="card">
+       <div className="section-header">
+      <h3>Low Stock Alerts</h3>
+  </div>
+
+  {lowstock.length === 0 ? (
+    <p style={{ fontSize: "13px", color: "#94a3b8" }}>
+      All items are in stock
+    </p>
+  ) : (
+    <table style={{ width: "100%", fontSize: "13px" }}>
+      <thead>
+        <tr>
+          <th align="left">Product</th>
+          <th align="left">SKU</th>
+          <th align="left">Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        {lowstock.map((p, index) => (
+          <tr key={index}>
+            <td>{p.name}</td>
+            <td>{p.sku}</td>
+            <td style={{ color: "red", fontWeight: "600" }}>
+              {p.stock}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
                 </section>
             </main>
         </div>

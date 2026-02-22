@@ -3,7 +3,7 @@ import "./ProductManagement.css";
 import AddProductModal from "./AddProductModal";
 import axios from "axios";
 import { useEffect } from "react";
-
+import { toast } from "react-toastify"
 
 const categories = ["All", "Beverages", "Snacks", "Dairy", "Grocery"];
 function ProductManagement() {
@@ -14,12 +14,8 @@ function ProductManagement() {
         const response = await axios.get(
           "http://localhost:8086/api/products"
         );
-
-        console.log("API RESPONSE:", response.data);
-
         setProducts(response.data);
 
-        console.log("STATE AFTER SET:", response.data);
       } catch (error) {
         console.log("Error fetching products", error);
       }
@@ -31,25 +27,21 @@ function ProductManagement() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: "" });
 
-  /*  const handleImportCSV = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-  
-      if (!file.name.endsWith(".csv")) {
-        alert("Please upload a CSV file");
-        return;
-      }
-  
-      const reader = new FileReader();
-      reader.onload = () => {
-        alert(`Imported file: ${file.name}`);
-        // later: parse CSV & add products
-      };
-      reader.readAsText(file);
-    };*/
   const handleImportCSV = async (e) => {
     const file = e.target.files[0];
+
+    if (!file) {
+      toast.error("No file selected. Please choose a CSV file.");
+      return;
+    }
+
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Invalid file type. Please upload a .csv file.");
+      e.target.value = "";
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -64,29 +56,41 @@ function ProductManagement() {
           },
         }
       );
-
+      toast.success("Products imported successfully!");
       console.log(res.data);
-      alert(res.data);
-
     } catch (err) {
-      console.error(err);
-      alert("Upload failed");
+      toast.error("File upload failed. Please check the file and try again.");
+      console.error("CSV import error:", err);
+    }
+
+    e.target.value = "";
+  };
+
+
+  const handleExport = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8090/api/reports/manager-summary/pdf",
+        {
+          responseType: "blob",
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      link.setAttribute("download", "manager-summary.pdf");
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (error) {
+      console.log(error);
     }
   };
 
-
-  const handleExport = () => {
-    const dataStr = JSON.stringify(products, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "products.json";
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
 
   const handleAddProduct = async (form) => {
     try {
@@ -100,44 +104,54 @@ function ProductManagement() {
       };
 
       if (editingProduct) {
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === editingProduct.id
-              ? {
-                ...p,
-                name: form.name,
-                sku: form.sku,
-                category: form.category,
-                price: `₹${form.price}`,
-                tax: `${form.tax}%`,
-                stock: Number(form.stock),
-              }
-              : p
+
+        await axios.put(
+          `http://localhost:8086/api/products/${editingProduct.id}`,
+          productData
+        );
+
+        setProducts(prev =>
+          prev.map(p =>
+            p.id === editingProduct.id ? { ...p, ...productData } : p
           )
         );
+
+        toast.success("Product updated");
+
         setEditingProduct(null);
+        setShowAddProduct(false);
       } else {
         await axios.post(
           "http://localhost:8086/api/products",
           productData
         );
+        toast.success("Product added");
       }
-
-      fetchProducts();
-
     } catch (error) {
       console.error("Error saving product:", error);
     }
   };
 
-  const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:8086/api/products/${id}`);
-  
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+  const confirmDelete = (product) => {
+    setDeleteConfirm({ show: true, productId: product.id, productName: product.name });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8086/api/products/${deleteConfirm.productId}`);
+      setProducts((prev) => prev.filter((p) => p.id !== deleteConfirm.productId));
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete product");
+    }
+    setDeleteConfirm({ show: false, productId: null, productName: "" });
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirm({ show: false, productId: null, productName: "" });
   };
 
   const handleEdit = (product) => {
-    axios.put(`http://localhost:8086/api/products/${product.id}`, product)
     setEditingProduct(product);
     setShowAddProduct(true);
   };
@@ -166,6 +180,27 @@ function ProductManagement() {
           onAdd={handleAddProduct}
           initialData={editingProduct}
         />
+      )}
+
+      {deleteConfirm.show && (
+        <div className="del-overlay">
+          <div className="del-modal">
+            <div className="del-icon">🗑️</div>
+            <h3 className="del-title">Delete Product?</h3>
+            <p className="del-message">
+              Are you sure you want to delete <strong>{deleteConfirm.productName}</strong>?<br />
+              This action cannot be undone.
+            </p>
+            <div className="del-actions">
+              <button className="del-btn del-cancel" onClick={cancelDelete}>
+                No, Keep It
+              </button>
+              <button className="del-btn del-confirm" onClick={handleDelete}>
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="container">
@@ -209,7 +244,6 @@ function ProductManagement() {
             placeholder="Search products by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-
           />
 
           <div className="category-filters">
@@ -255,7 +289,7 @@ function ProductManagement() {
                     </span>
                     <span
                       style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => confirmDelete(p)}
                     >
                       🗑️
                     </span>
@@ -278,4 +312,4 @@ function ProductManagement() {
   );
 }
 
-export default ProductManagement;  
+export default ProductManagement;
