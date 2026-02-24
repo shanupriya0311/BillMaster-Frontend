@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import "./POS.css";
 import PaymentModal from "./PaymentModal";
-import { PauseCircle, PlayCircle, Trash2 } from "lucide-react"; // Importing icons for held items
+import { PauseCircle, PlayCircle, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import axios from "axios";
 import InvoiceModal from "./InvoiceModal";
 
 export default function ManagerPOS() {
   const [cart, setCart] = useState({});
-  const [heldCarts, setHeldCarts] = useState([]); // State for held carts
+  const [heldCarts, setHeldCarts] = useState([]);
   const [search, setSearch] = useState("");
   const [barcode, setBarcode] = useState("");
   const [category, setCategory] = useState("All");
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const[PRODUCTS,setproduct]=useState([]);
+  const [PRODUCTS, setproduct] = useState([]);
   const [orderData, setOrderData] = useState(null);
-const [showInvoice, setShowInvoice] = useState(false);
-const [invoiceData, setInvoiceData] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [invoiceData, setInvoiceData] = useState(null);
 
   const handlePaymentConfirm = (details) => {
     console.log("Payment successful:", details);
@@ -24,14 +24,14 @@ const [invoiceData, setInvoiceData] = useState(null);
     setIsPaymentModalOpen(false);
   };
   useEffect(() => {
-  const fetchProducts = async () => {
-    const response = await axios.get("http://localhost:8086/api/products");
-    setproduct(response.data);
-    console.log(PRODUCTS.data);
-  };
+    const fetchProducts = async () => {
+      const response = await axios.get("http://localhost:8086/api/products");
+      setproduct(response.data);
+      console.log(PRODUCTS.data);
+    };
 
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, []);
 
   const addToCart = (sku) => {
     const product = PRODUCTS.find(p => p.sku === sku);
@@ -46,7 +46,7 @@ const [invoiceData, setInvoiceData] = useState(null);
     setCart(prev => {
       const c = { ...prev };
       c[sku].qty += val;
-      if (c[sku].qty <= 0) delete c[sku]; // Ensure <= 0 removes it
+      if (c[sku].qty <= 0) delete c[sku];
       return c;
     });
   };
@@ -60,9 +60,8 @@ const [invoiceData, setInvoiceData] = useState(null);
   };
 
 
-  // Hold Functionality
   const handleHold = () => {
-    if (Object.keys(cart).length === 0) return; // Don't hold empty cart
+    if (Object.keys(cart).length === 0) return;
 
     const newHold = {
       id: Date.now(),
@@ -76,7 +75,6 @@ const [invoiceData, setInvoiceData] = useState(null);
     setCart({}); // Clear cart
   };
 
-  // Retrieve Held Cart
   const restoreHold = (holdId) => {
     const cartToRestore = heldCarts.find(h => h.id === holdId);
     if (cartToRestore) {
@@ -85,18 +83,23 @@ const [invoiceData, setInvoiceData] = useState(null);
     }
   };
 
-const filtered = PRODUCTS.filter(p => {
-  const text = search.toLowerCase();
 
-  const matchSearch =
-    String(p.name || "").toLowerCase().startsWith(text) ||
-    String(p.sku || "").toLowerCase().startsWith(text);
+  const filtered = PRODUCTS.filter(p => {
+    const text = search.toLowerCase().trim();
+    const name = String(p.name || "").toLowerCase();
+    const sku = String(p.sku || "").toLowerCase();
+    const productCategory = String(p.category || "").toLowerCase().trim();
+    const selectedCategory = category.toLowerCase().trim();
 
-  const matchCategory =
-    category === "All" || p.cat === category;
+    const matchSearch = name.startsWith(text) || sku.startsWith(text);
 
-  return matchSearch && matchCategory;
-});
+    const matchCategory =
+      selectedCategory === "all" ||
+      productCategory.includes(selectedCategory) ||
+      selectedCategory.includes(productCategory);
+
+    return matchSearch && matchCategory;
+  });
 
 
 
@@ -112,74 +115,74 @@ const filtered = PRODUCTS.filter(p => {
       setBarcode("");
     }
   };
- const paymentprocess = async () => {
-  try {
-    const res = await axios.post(
-      `http://localhost:8087/api/payment/create-order?amount=${Math.round(total)}`
-    );
+  const paymentprocess = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:8087/api/payment/create-order?amount=${Math.round(total)}`
+      );
 
-    console.log("Order Created:", res.data);
+      console.log("Order Created:", res.data);
 
-    return res.data;   
+      return res.data;
 
-  } catch (error) {
-    console.error("Payment processing error:", error);
-  }
-};
-
-const handlepay = async () => {
-    console.log("PAY CLICKED");
-  const data = await paymentprocess();   // STEP 1
-  setOrderData(data);
-
-  const options = {
-    key: data.key,
-    amount: data.amount,
-    currency: "INR",
-    order_id: data.orderId,
-
-   handler: async function (response) {
-
-  try {
-    const res = await axios.post("http://localhost:8087/api/payment/verify", null, {
-      params: {
-        orderId: response.razorpay_order_id,
-        paymentId: response.razorpay_payment_id,
-        signature: response.razorpay_signature,
-        amount: total,
-        productName: Object.values(cart).map(i => i.name).join(", "),
-        paymentMethod: "ONLINE",
-        cashierName: "Shanu"
-      }
-    });
-    console.log("VERIFY RESPONSE:", res.data);
-
-
-    setInvoiceData(res.data);
-
-    setShowInvoice(true);
-
-    setCart({});
-
-  } catch (error) {
-    console.log("Payment verify failed:", error);
-  }
-}
-
+    } catch (error) {
+      console.error("Payment processing error:", error);
+    }
   };
 
-  const razor = new window.Razorpay(options);
-  razor.open();
-};
+  const handlepay = async () => {
+    console.log("PAY CLICKED");
+    const data = await paymentprocess();   // STEP 1
+    setOrderData(data);
+
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: "INR",
+      order_id: data.orderId,
+
+      handler: async function (response) {
+
+        try {
+          const res = await axios.post("http://localhost:8087/api/payment/verify", null, {
+            params: {
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              amount: total,
+              productName: Object.values(cart).map(i => i.name).join(", "),
+              paymentMethod: "ONLINE",
+              cashierName: "Shanu"
+            }
+          });
+          console.log("VERIFY RESPONSE:", res.data);
+
+
+          setInvoiceData(res.data);
+
+          setShowInvoice(true);
+
+          setCart({});
+
+        } catch (error) {
+          console.log("Payment verify failed:", error);
+        }
+      }
+
+    };
+
+    const razor = new window.Razorpay(options);
+    razor.open();
+  };
 
   return (
     <>
-      {/* MAIN */}
+
       <main className="main">
         <header className="header">Point of Sale</header>
 
         <div className="pos">
-          {/* PRODUCTS */}
+
           <section className="products">
             <div className="search">
               <input
@@ -195,7 +198,7 @@ const handlepay = async () => {
               />
             </div>
 
-            {/* CATEGORY FILTER */}
+
             <div className="categories">
               {[
                 "All",
@@ -210,47 +213,53 @@ const handlepay = async () => {
                 <button
                   key={cat}
                   className={`cat-btn ${category === cat ? "active" : ""}`}
-                  onClick={() => setCategory(cat)}
+                  onClick={() => {
+                    setCategory(cat);
+                  }}
                 >
                   {cat}
                 </button>
               ))}
             </div>
-
-            <div className="grid">
+<div className="grid">
               {filtered.map(p => (
                 <div
                   key={p.sku}
                   className="card"
                   onClick={() => addToCart(p.sku)}
                 >
-                  <div className="icon">
-{p.category?.toLowerCase() === "beverages" ? "🥤" :
- p.category?.toLowerCase() === "snacks" ? "🍿" :
- p.category?.toLowerCase() === "dairy" ? "🧀" :
- p.category?.toLowerCase() === "confectionery" ? "🍫" :
- p.category?.toLowerCase() === "personal care" ? "🧴" :
- p.category?.toLowerCase() === "grocery" ? "🛒" :
- p.category?.toLowerCase() === "bakery" ? "🍞" :
- "📦"}
+                <div className="icon">
+  {p.imageUrl ? (
+    <img
+      src={`http://localhost:8086${p.imageUrl}`}
+      alt={p.name}
+      style={{ width: "60px", height: "60px", objectFit: "cover" }}
+    />
+  ) : (
+    <img
+      src="/boost.jpg"
+      alt="no image"
+      style={{ width: "60px", height: "60px", objectFit: "cover" }}
+    />
+  )}
 </div>
                   <div className="name">{p.name}</div>
-                  <div className="cat">{p.cat}</div>
                   <div className="price">₹{p.price}</div>
                   <small>SKU: {p.sku}</small>
                 </div>
               ))}
             </div>
+            
           </section>
 
-          {/* CART */}
+
           <aside className="cart">
             <div className="cart-head">
               <span>Current Order</span>
               <span>{count} items</span>
             </div>
 
-            {/* Held Bills Section */}
+
             {heldCarts.length > 0 && (
               <div style={{ padding: '0 10px', marginTop: '10px' }}>
                 <div
@@ -303,30 +312,30 @@ const handlepay = async () => {
               ) : (
                 Object.values(cart).map(item => (
                   <div className="cart-item-card" key={item.sku}>
-                    {/* Icon */}
+
                     <div className="item-icon">
                       {item.icon}
                     </div>
 
-                    {/* Details */}
+
                     <div className="item-details">
                       <span className="item-name">{item.name}</span>
                       <span className="item-price-unit">₹{item.price} × {item.qty}</span>
                     </div>
 
-                    {/* Quantity Controls */}
+
                     <div className="quantity-controls">
                       <button className="qty-btn" onClick={() => changeQty(item.sku, -1)}>−</button>
                       <span className="item-qty">{item.qty}</span>
                       <button className="qty-btn" onClick={() => changeQty(item.sku, 1)}>+</button>
                     </div>
 
-                    {/* Total Price */}
+
                     <div className="item-total">
                       ₹{(item.price * item.qty).toFixed(2)}
                     </div>
 
-                    {/* Delete */}
+
                     <button
                       className="delete-btn"
                       onClick={() => deleteItem(item.sku)}
@@ -381,11 +390,11 @@ const handlepay = async () => {
         onConfirm={handlePaymentConfirm}
       />
       {showInvoice && invoiceData && (
-  <InvoiceModal
-    invoice={invoiceData}
-    onClose={() => setShowInvoice(false)}
-  />
-)}
+        <InvoiceModal
+          invoice={invoiceData}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </>
   );
 }

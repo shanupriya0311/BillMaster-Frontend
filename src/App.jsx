@@ -18,6 +18,8 @@ import ManagerLayout from "./components/ManagerLayout";
 import Home from "./components/Home";
 import Welcome from "./components/Welcome";
 import SignUp from "./components/SignUp";
+import ResetPassword from "./components/ResetPassword";
+import ForgotPassword from "./components/ForgotPassword";
 import axios from "axios"
 import ManagerCustomers from "./components/ManagerCustomers";
 // Cashier Imports
@@ -115,9 +117,13 @@ function App() {
       {currentPage === "Welcome" ? (
         <Welcome onNavigate={setCurrentPage} />
       ) : currentPage === "Home" ? (
-        <Home onLogin={handleLogin} userdata={userdata} />
+        <Home onLogin={handleLogin} onNavigate={setCurrentPage} userdata={userdata} />
       ) : currentPage === "SignUp" ? (
         <SignUp onNavigate={setCurrentPage} />
+      ) : currentPage === "ResetPassword" ? (
+        <ResetPassword onNavigate={setCurrentPage} />
+      ) : currentPage === "ForgotPassword" ? (
+        <ForgotPassword onNavigate={setCurrentPage} />
       ) : isCashierPage ? (
         <CashierLayout currentPage={currentPage} onNavigate={setCurrentPage} currentUser={currentUser} onLogout={handleLogout}>
           {renderPage()}

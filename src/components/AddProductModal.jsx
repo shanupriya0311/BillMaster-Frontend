@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./AddProductModal.css";
 import { toast } from "react-toastify";
 
@@ -12,7 +12,11 @@ function AddProductModal({ onClose, onAdd, initialData }) {
     tax: 18,
     stock: 0,
     lowStock: 10,
+    imageUrl: "",
   });
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (initialData) {
@@ -25,7 +29,9 @@ function AddProductModal({ onClose, onAdd, initialData }) {
         tax: initialData.tax ?? 18,
         stock: initialData.stock ?? 0,
         lowStock: initialData.lowStock ?? 10,
+        imageUrl: initialData.imageUrl || "",
       });
+      if (initialData.imageUrl) setImagePreview(initialData.imageUrl);
     }
   }, [initialData]);
 
@@ -33,11 +39,43 @@ function AddProductModal({ onClose, onAdd, initialData }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await onAdd(form);
-    onClose();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setForm((prev) => ({ ...prev, imageUrl: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("name", form.name);
+  formData.append("sku", form.sku);
+  formData.append("category", form.category);
+  formData.append("price", form.price);
+  formData.append("stock", form.stock);
+
+  if (fileInputRef.current.files[0]) {
+    formData.append("image", fileInputRef.current.files[0]);
+  }
+
+  await onAdd(formData);
+  
+};
 
   const isEditing = !!initialData;
 
@@ -51,6 +89,41 @@ function AddProductModal({ onClose, onAdd, initialData }) {
         </div>
 
         <form onSubmit={handleSubmit}>
+
+          {/* Image Upload */}
+          <div className="ap-group ap-full">
+            <label>Product Image</label>
+            <div
+              className={`ap-image-upload ${imagePreview ? "ap-image-has-preview" : ""}`}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {imagePreview ? (
+                <>
+                  <img src={imagePreview} alt="Product preview" className="ap-image-preview" />
+                  <button
+                    type="button"
+                    className="ap-image-remove"
+                    onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}
+                  >
+                    ×
+                  </button>
+                </>
+              ) : (
+                <div className="ap-image-placeholder">
+                  <i className="fas fa-cloud-upload-alt ap-upload-icon"></i>
+                  <span>Click to upload image</span>
+                  <span className="ap-upload-hint">PNG, JPG, WEBP up to 5MB</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
+          </div>
 
           <div className="ap-row">
             <div className="ap-group">

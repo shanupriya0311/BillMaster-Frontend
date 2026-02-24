@@ -149,16 +149,22 @@
 }
 
 .btn {
+    display: block;
+    width: 100%;
     padding: 18px;
     border-radius: 14px;
     font-weight: 700;
+    text-align: center;
     text-decoration: none;
+    cursor: pointer;
+    border: none;
     transition: var(--transition);
 }
 
 .btn-signin {
     background: var(--teal);
     color: var(--navy);
+    text-align: center;
 }
 
 .btn-signup {

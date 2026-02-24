@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./Home.css";
-import { Mail, Lock, Store, Clock, FileText, Activity } from "lucide-react";
+import { Mail, Lock, Store, Clock, FileText, Activity, ArrowLeft } from "lucide-react";
 import axios from "axios";
-export default function Home({ onLogin}) {
+export default function Home({ onLogin, onNavigate }) {
     const [showError, setShowError] = useState(false);
-    const [form,setuserform]=useState({
-        email:"",
-        password:""
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState("");
+    const [forgotStatus, setForgotStatus] = useState(null);
+    const [forgotLoading, setForgotLoading] = useState(false);
+    const [form, setuserform] = useState({
+        email: "",
+        password: ""
     })
     const { email, password } = form;
     const roleToDashboard = {
@@ -16,26 +20,46 @@ export default function Home({ onLogin}) {
     };
 
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
+    const handleLogin = async (e) => {
+        e.preventDefault();
 
-  try {
-    const response = await axios.post(
-      "http://localhost:8083/api/auth/login",
-      form
-    );
+        try {
+            const response = await axios.post(
+                "http://localhost:8083/api/auth/login",
+                form
+            );
 
-    setShowError(false);
+            setShowError(false);
 
-    onLogin(
-      response.data,
-      roleToDashboard[response.data.role]
-    );
+            onLogin(
+                response.data,
+                roleToDashboard[response.data.role]
+            );
 
-  } catch (error) {
-    setShowError(true);
-  }
-};
+        } catch (error) {
+            setShowError(true);
+        }
+    };
+
+    const handleForgotPassword = async (e) => {
+        e.preventDefault();
+        setForgotLoading(true);
+        try {
+            await axios.post("http://localhost:8083/api/auth/forgot-password", { email: forgotEmail });
+            setForgotStatus("success");
+        } catch (err) {
+            setForgotStatus("success");
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    const closeForgotModal = () => {
+        setShowForgotModal(false);
+        setForgotEmail("");
+        setForgotStatus(null);
+        setForgotLoading(false);
+    };
 
 
     return (
@@ -108,7 +132,7 @@ export default function Home({ onLogin}) {
                                     type="email"
                                     placeholder="Email Address"
                                     value={form.email}
-                                    onChange={(e) =>setuserform(prev=>({...prev,email:e.target.value}))}
+                                    onChange={(e) => setuserform(prev => ({ ...prev, email: e.target.value }))}
                                     className="form-input"
                                 />
                             </div>
@@ -122,7 +146,7 @@ export default function Home({ onLogin}) {
                                     type="password"
                                     placeholder="Password"
                                     value={form.password}
-                                    onChange={(e) => setuserform(prev=>({...prev,password:e.target.value}))}
+                                    onChange={(e) => setuserform(prev => ({ ...prev, password: e.target.value }))}
                                     className="form-input"
                                 />
                             </div>
@@ -131,6 +155,7 @@ export default function Home({ onLogin}) {
                         <button type="submit" className="btn-signin">
                             Sign In
                         </button>
+
                     </form>
                 </div>
             </section>
@@ -145,6 +170,67 @@ export default function Home({ onLogin}) {
                         <button className="error-close-btn" onClick={() => setShowError(false)}>
                             Close
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Forgot Password Modal */}
+            {showForgotModal && (
+                <div className="error-overlay" onClick={closeForgotModal}>
+                    <div className="forgot-modal" onClick={(e) => e.stopPropagation()}>
+                        {forgotStatus === "success" ? (
+                            <div className="forgot-success">
+                                <div className="forgot-success-icon">✉️</div>
+                                <h3>Check Your Email</h3>
+                                <p>
+                                    If an account exists for <strong>{forgotEmail}</strong>, a password reset link has been sent.
+                                </p>
+                                <button className="btn-forgot-submit" onClick={closeForgotModal}>
+                                    Back to Sign In
+                                </button>
+                                {onNavigate && (
+                                    <button
+                                        className="btn-forgot-submit"
+                                        style={{ background: "#0f172a", marginTop: "8px" }}
+                                        onClick={() => { closeForgotModal(); onNavigate("ResetPassword"); }}
+                                    >
+                                        Reset Password Now
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <button className="forgot-back-btn" onClick={closeForgotModal}>
+                                    <ArrowLeft size={18} /> Back
+                                </button>
+                                <div className="forgot-icon-wrap">🔐</div>
+                                <h3 className="forgot-title">Forgot Password?</h3>
+                                <p className="forgot-desc">
+                                    No worries! Enter your email address below and we'll send you a reset link.
+                                </p>
+                                <form onSubmit={handleForgotPassword} className="forgot-form">
+                                    <div className="input-wrapper">
+                                        <Mail size={20} className="input-icon" />
+                                        <input
+                                            type="email"
+                                            placeholder="Enter your email address"
+                                            value={forgotEmail}
+                                            onChange={(e) => setForgotEmail(e.target.value)}
+                                            className="form-input"
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="btn-forgot-submit"
+                                        disabled={forgotLoading}
+                                    >
+                                        {forgotLoading ? "Sending..." : "Send Reset Link"}
+                                    </button>
+                                </form>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

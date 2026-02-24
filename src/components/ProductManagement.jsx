@@ -92,45 +92,26 @@ function ProductManagement() {
   };
 
 
-  const handleAddProduct = async (form) => {
-    try {
-      const productData = {
-        name: form.name,
-        sku: form.sku,
-        category: form.category,
-        price: form.price,
-        tax: form.tax,
-        stock: Number(form.stock),
-      };
-
-      if (editingProduct) {
-
-        await axios.put(
-          `http://localhost:8086/api/products/${editingProduct.id}`,
-          productData
-        );
-
-        setProducts(prev =>
-          prev.map(p =>
-            p.id === editingProduct.id ? { ...p, ...productData } : p
-          )
-        );
-
-        toast.success("Product updated");
-
-        setEditingProduct(null);
-        setShowAddProduct(false);
-      } else {
-        await axios.post(
-          "http://localhost:8086/api/products",
-          productData
-        );
-        toast.success("Product added");
+  const handleAddProduct = async (formData) => {
+  try {
+    await axios.post(
+      "http://localhost:8086/api/products",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
-    } catch (error) {
-      console.error("Error saving product:", error);
-    }
-  };
+    );
+
+    toast.success("Product added");
+    setShowAddProduct(false);
+
+  } catch (error) {
+    console.error("Error saving product:", error);
+    toast.error("Failed to add product");
+  }
+};
 
   const confirmDelete = (product) => {
     setDeleteConfirm({ show: true, productId: product.id, productName: product.name });

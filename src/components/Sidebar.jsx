@@ -34,7 +34,7 @@ const Sidebar = ({ activePage, onNavigate, currentUser, onLogout }) => {
                 <div className="user-profile">
                     <div className="avatar">{userInitial}</div>
                     <div>
-                        <div className="user-role" style={{paddingLeft: "0px"}}>{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</div>
+                        <div className="user-role" style={{ paddingLeft: "0px" }}>{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</div>
                     </div>
                 </div>
                 <button className="logout-btn" onClick={onLogout}>

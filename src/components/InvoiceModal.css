@@ -312,20 +312,5 @@
 }
 
 /* ── Print Styles ── */
-@media print {
-  .inv-overlay {
-    position: static;
-    background: none;
-    backdrop-filter: none;
-  }
-
-  .inv-modal {
-    box-shadow: none;
-    max-height: none;
-    width: 100%;
-  }
-
-  .inv-footer {
-    display: none;
-  }
-}
+/* Printing is handled by a dedicated popup window in InvoiceModal.jsx.
+   No @media print rules needed here. */

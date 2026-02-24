@@ -241,12 +241,11 @@ const Reports = () => {
         const ws2 = XLSX.utils.aoa_to_sheet([...salesHeaders, ...salesRows]);
         XLSX.utils.book_append_sheet(wb, ws2, "Sales Data");
 
-        const taxHeaders = [["Date", "Taxable Sales", "Tax", "Transactions"]];
+        const taxHeaders = [["Date", "Taxable Sales", "Tax"]];
         const taxRows = taxByDate.map(row => [
             row.date,
             `₹${row.taxableSales.toFixed(2)}`,
-            `₹${row.tax.toFixed(2)}`,
-            row.transactions
+            `₹${row.tax.toFixed(2)}`
         ]);
         const ws3 = XLSX.utils.aoa_to_sheet([...taxHeaders, ...taxRows]);
         XLSX.utils.book_append_sheet(wb, ws3, "Tax Report");
@@ -260,7 +259,7 @@ const Reports = () => {
             const response = await axios.get(
                 "http://localhost:8090/api/reports/manager-summary/pdf",
                 {
-                    responseType: "blob",   
+                    responseType: "blob",
                 }
             );
 
@@ -441,7 +440,6 @@ const Reports = () => {
                             <th>Date</th>
                             <th>Taxable Sales</th>
                             <th>Tax</th>
-                            <th>Transactions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -450,7 +448,6 @@ const Reports = () => {
                                 <td>{row.date}</td>
                                 <td>₹{row.taxableSales.toFixed(2)}</td>
                                 <td className="green">₹{row.tax.toFixed(2)}</td>
-                                <td>{row.transactions}</td>
                             </tr>
                         ))}
                     </tbody>

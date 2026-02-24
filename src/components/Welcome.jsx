@@ -59,8 +59,12 @@ export default function Welcome({ onNavigate }) {
                             Sign In
                         </button>
                     </div>
+                    {/*<div style={{textAlign:"center",padding:"10px"}}>
+                        <p>
+                            <b>Need help ? <a>Contact  Support</a></b>
+                        </p>
+                    </div>*/}
 
-                    
                 </div>
             </section>
         </div>

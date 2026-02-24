@@ -221,30 +221,35 @@ export default function POS() {
                 </button>
               ))}
             </div>
-
-            <div className="grid">
+<div className="grid">
               {filtered.map(p => (
                 <div
                   key={p.sku}
                   className="card"
                   onClick={() => addToCart(p.sku)}
                 >
-                  <div className="icon">
-                    {p.category?.toLowerCase() === "beverages" ? "🥤" :
-                      p.category?.toLowerCase() === "snacks" ? "🍿" :
-                        p.category?.toLowerCase() === "dairy" ? "🧀" :
-                          p.category?.toLowerCase() === "confectionery" ? "🍫" :
-                            p.category?.toLowerCase() === "personal care" ? "🧴" :
-                              p.category?.toLowerCase() === "grocery" ? "🛒" :
-                                p.category?.toLowerCase() === "bakery" ? "🍞" :
-                                  "📦"}
-                  </div>
+                <div className="icon">
+  {p.imageUrl ? (
+    <img
+      src={`http://localhost:8086${p.imageUrl}`}
+      alt={p.name}
+      style={{ width: "60px", height: "60px", objectFit: "cover" }}
+    />
+  ) : (
+    <img
+      src="/boost.jpg"
+      alt="no image"
+      style={{ width: "60px", height: "60px", objectFit: "cover" }}
+    />
+  )}
+</div>
                   <div className="name">{p.name}</div>
                   <div className="price">₹{p.price}</div>
                   <small>SKU: {p.sku}</small>
                 </div>
               ))}
             </div>
+            
           </section>
 
 
