@@ -17,7 +17,7 @@ function AddProductModal({ onClose, onAdd, initialData }) {
 
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-
+  
   useEffect(() => {
     if (initialData) {
       setForm({
@@ -38,7 +38,7 @@ function AddProductModal({ onClose, onAdd, initialData }) {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+ 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -62,21 +62,54 @@ function AddProductModal({ onClose, onAdd, initialData }) {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const formData = new FormData();
-  formData.append("name", form.name);
-  formData.append("sku", form.sku);
-  formData.append("category", form.category);
-  formData.append("price", form.price);
-  formData.append("stock", form.stock);
+  const imageFile = fileInputRef.current?.files[0];
 
-  if (fileInputRef.current.files[0]) {
-    formData.append("image", fileInputRef.current.files[0]);
+  // 🔥 IMAGE VALIDATION (Add mode only)
+  if (!imageFile && !imagePreview) {
+    toast.error("Please upload a product image.");
+    return;
   }
 
-  await onAdd(formData);
-  
-};
+  // 🔥 Basic field validation
+  if (!form.name.trim()) {
+    toast.error("Product name is required.");
+    return;
+  }
 
+  if (!form.sku.trim()) {
+    toast.error("SKU is required.");
+    return;
+  }
+
+  if (!form.category) {
+    toast.error("Please select a category.");
+    return;
+  }
+
+  if (!form.price || form.price <= 0) {
+    toast.error("Price must be greater than 0.");
+    return;
+  }
+
+  if (form.stock < 0) {
+    toast.error("Stock cannot be negative.");
+    return;
+  }
+
+  const data = {
+    sku: form.sku,
+    name: form.name,
+    category: form.category,
+    price: Number(form.price),
+    stock: Number(form.stock),
+  };
+
+  if (imageFile) {
+    data.image = imageFile;
+  }
+
+  await onAdd(data);
+};
   const isEditing = !!initialData;
 
   return (

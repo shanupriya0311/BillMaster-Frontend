@@ -92,7 +92,7 @@ function ProductManagement() {
   };
 
 
-  const handleAddProduct = async (formData) => {
+  /*const handleAddProduct = async (formData) => {
   try {
     await axios.post(
       "http://localhost:8086/api/products",
@@ -110,6 +110,50 @@ function ProductManagement() {
   } catch (error) {
     console.error("Error saving product:", error);
     toast.error("Failed to add product");
+  }
+};*/
+const handleAddProduct = async (data) => {
+  try {
+    if (editingProduct) {
+      // 🔥 UPDATE (JSON)
+      await axios.put(
+        `http://localhost:8086/api/products/${editingProduct.id}`,
+        data
+      );
+
+      toast.success("Product updated successfully");
+    } else {
+      // 🔥 CREATE (MULTIPART)
+      const formData = new FormData();
+      formData.append("sku", data.sku);
+      formData.append("name", data.name);
+      formData.append("category", data.category);
+      formData.append("price", data.price);
+      formData.append("stock", data.stock);
+
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+
+      await axios.post(
+        "http://localhost:8086/api/products",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      toast.success("Product added successfully");
+    }
+
+    // refresh list
+    const response = await axios.get("http://localhost:8086/api/products");
+    setProducts(response.data);
+
+    setShowAddProduct(false);
+    setEditingProduct(null);
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Operation failed");
   }
 };
 
@@ -135,8 +179,9 @@ function ProductManagement() {
   const handleEdit = (product) => {
     setEditingProduct(product);
     setShowAddProduct(true);
+    
   };
-
+ 
   const filteredProducts = products.filter((p) => {
     const name = (p.name || "").toLowerCase();
     const sku = (p.sku || "").toLowerCase();
@@ -246,7 +291,6 @@ function ProductManagement() {
                 <th>SKU</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Tax</th>
                 <th>Stock</th>
                 <th>Action</th>
               </tr>
@@ -259,7 +303,6 @@ function ProductManagement() {
                   <td>{p.sku}</td>
                   <td>{p.category}</td>
                   <td>{p.price}</td>
-                  <td>{p.tax}</td>
                   <td>{p.stock}</td>
                   <td>
                     <span
